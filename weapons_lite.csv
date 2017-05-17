@@ -1,0 +1,4 @@
+ID,Type,Name,Description,Worth,Rarity,Rating,Image URI
+1,WAND,Stick,Doesn't look very magical.,1,1,2,wand_stick.png
+2,WAND,Wand,"""Wingardium leviosa!""",5,2,7,wand_wand.png
+3,WAND,Master Wand,WARNING: Can cause fires… And explosions…,20,3,15,wand_master_wand.png

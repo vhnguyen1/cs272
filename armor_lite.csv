@@ -1,0 +1,6 @@
+Armor ID,Type,Name,Description,Worth,Rarity,Rating,Image URI
+1,HELMET,Fedora,Provides some protection… I hope.,5,1,1,helm_fedora.png
+2,HELMET,Bronze Helmet,Better than a Fedora I guess…,8,1,5,helm_bronze.png
+3,HELMET,Iron Helmet,A combination of fancy and tough all in one.,12,2,7,helm_iron.png
+4,HELMET,Steel Helmet,Iron's scarier older brother.,15,2,10,helm_steel.png
+5,HELMET,Wizard Hat,Makes you look like you know what you're doing (when you clearly don't).,7,2,2,helm_pointed_hat.png
