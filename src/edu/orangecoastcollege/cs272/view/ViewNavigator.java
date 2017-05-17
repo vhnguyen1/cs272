@@ -10,6 +10,17 @@ public final class ViewNavigator {
 	public static final String SIGN_UP_SCENE = "SignUpScene.fxml";
 	public static final String SIGN_IN_SCENE = "SignInScene.fxml";
 	public static final String MAIN_MENU_SCENE = "MainMenuScene.fxml";
+    public static final String START_SCENE = "GameStartUpView.fxml";
+    public static final String OPTION_SCENE = "OptionView.fxml";
+    public static final String CHARACTER_SELECT_SCENE = "CharacterSelectView.fxml";
+    public static final String CHARACTER_CREATE_SCENE = "CharacterCreateView.fxml";
+    public static final String GAME_VIEW = "GameView.fxml";
+    public static final String CHARACTER_SKILL_SCENE = "";
+    public static final String INVENTORY_SCENE = "";
+    public static final String EQUIPMENT_SCENE = "";
+    public static final String BOSS_SCENE = "";
+    public static final String GAME_OVER_SCENE = "";
+    public static final String MONSTER_BOOK_SCENE = "";
 
 	public static Stage mainStage;
 

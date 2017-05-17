@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package edu.orangecoastcollege.cs272.controller;
 
@@ -22,7 +22,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
 /**
- * 
+ *
  * @author mengv
  * @version 1.0
  */
@@ -31,11 +31,11 @@ public final class Controller {
     private static final Role DEFAULT_ROLE = Role.valueOf("STANDARD");
     //private static final String DEFAULT_ROLE = "STANDARD";
     private ObservableList<User> mAllUsersList;
-    
+
     private ObservableList<Weapon> mAllWeaponsList;
     private ObservableList<Armor> mAllArmorList;
     private ObservableList<Item> mAllItemsList;
-    
+
 	public static final double WINDOW_WIDTH = 1000;
 	public static final double WINDOW_HEIGHT = WINDOW_WIDTH * 9.0 / 16.0;
 	public static final int ENEMY_COUNT = 1;
@@ -44,33 +44,43 @@ public final class Controller {
 	private Player mPlayer;
 	private ArrayList<Enemy> mEnemysList;
 	private ArrayList<Projectile> mAllProjectiles;
-	
+
     private static final String DB_NAME = "adventure_game.db";
     private DBModel mUserDB;
     private DBModel mWeaponsDB;
     private DBModel mArmorDB;
     private DBModel mItemsDB;
-    
+
+    // Skill Data Base
+    private static final String SKILL_TABLE_NAME = "skill";
+    private static final String[] SKILL_FIELD_NAMES = { "id", "name", "lvl", "damage", "type", "image" };
+    private static final String[] SKILL_FIELD_TYPES = { "INTEGER PRIMARY KEY", "TEXT", "INTEGER", "INTEGER", "TEXT","TEXT" };
+
+    // Save Data Base
+    private static final String SAVE_TABLE_NAME = "saves";
+    private static final String[] SAVE_FIELD_NAMES = { "id", "name", "lvl", "xpos", "ypos" };
+    private static final String[] SAVE_FIELD_TYPES = { "INTEGER PRIMARY KEY", "TEXT", "INTEGER", "DOUBLE", "DOUBLE"};
+
     private static final String WEAPONS_DATA_FILE = "weapons_lite.csv";
     private static final String ARMOR_DATA_FILE = "armor_lite.csv";
     private static final String ITEMS_DATA_FILE = "items_lite.csv";
-	
+
     private static final String USER_TABLE_NAME = "user";
     private static final String[] USER_FIELD_NAMES = { "id", "username", "role", "password" };
     private static final String[] USER_FIELD_TYPES = { "INTEGER PRIMARY KEY", "TEXT", "TEXT", "TEXT" };
-	
+
     private static final String SCORE_TABLE_NAME = "scores";
     private static final String[] SCORE_FIELD_NAMES = { "score_id", "name", "score_points", "character_class", "image_uri" };
     private static final String[] SCORE_FIELD_TYPES = { "INTEGER", "TEXT", "INTEGER", "TEXT", "TEXT" };
-	
+
     private static final String LEVEL_TABLE_NAME = "levels";
     private static final String[] LEVEL_FIELD_NAMES = { "level_id", "name", "difficulty_rating", "number_enemies", "background_music_uri", "background_image" };
     private static final String[] LEVEL_FIELD_TYPES = { "INTEGER", "TEXT", "INTEGER", "INTEGER", "TEXT", "TEXT" };
-	
+
     private static final String WEAPON_TABLE_NAME = "weapons";
     private static final String[] WEAPON_FIELD_NAMES = { "weapon_id", "weapon_type", "name", "description", "worth", "rarity_value", "attack_points", "image_uri" };
     private static final String[] WEAPON_FIELD_TYPES = { "INTEGER", "TEXT", "TEXT", "TEXT", "INTEGER", "INTEGER", "INTEGER", "TEXT" };
-    
+
     private static final String ARMOR_TABLE_NAME = "armor";
     private static final String[] ARMOR_FIELD_NAMES = { "armor_id", "armor_type", "name", "description", "worth", "rarity_value", "armor_rating", "image_uri" };
     private static final String[] ARMOR_FIELD_TYPES = { "INTEGER", "TEXT", "TEXT", "TEXT", "INTEGER", "INTEGER", "INTEGER", "TEXT" };
@@ -88,24 +98,24 @@ public final class Controller {
     public static final String PASSWORD_DOES_NOT_MEET_CRITERIA = "Entered password does not meet the following criteria. Please try again.";
     public static final String PASSWORDS_DO_NOT_MATCH = "Entered passwords do not match. Please try again.";
     public static final String PASSWORD_SAME_AS_USER = "Entered password cannot be the same as the username. Please try again.";
-    
+
 	private Controller() {}
-	
+
 	public static Controller getInstance() {
 		if (theOne == null) {
 			theOne = new Controller();
-			
+
             try {
             	System.out.println("Loading User Database...");
                 theOne.mAllUsersList = FXCollections.observableArrayList();
                 theOne.mUserDB = new DBModel(DB_NAME, USER_TABLE_NAME, USER_FIELD_NAMES, USER_FIELD_TYPES);
                 theOne.mUserDB.deleteAllRecords();
                 ResultSet userRS = theOne.mUserDB.getAllRecords();
-                
+
                 int id;
                 String username;
                 Role role;
-                
+
                 while (userRS.next()) {
                     id = userRS.getInt(USER_FIELD_NAMES[0]);
                     username = userRS.getString(USER_FIELD_NAMES[1]);
@@ -118,10 +128,10 @@ public final class Controller {
             	System.out.println("Loading Weapon Database...");
                 theOne.mWeaponsDB = new DBModel(DB_NAME, WEAPON_TABLE_NAME, WEAPON_FIELD_NAMES,
                 		WEAPON_FIELD_TYPES);
-                theOne.mWeaponsDB.deleteAllRecords();  
-                //theOne.initializeWeaponsDBFromFile(); 
+                theOne.mWeaponsDB.deleteAllRecords();
+                //theOne.initializeWeaponsDBFromFile();
                 ResultSet weaponRS = theOne.mWeaponsDB.getAllRecords();
-                
+
                 int weaponID;
                 WeaponType weaponType;
                 String weaponName;
@@ -130,8 +140,8 @@ public final class Controller {
                 int weaponRarity;
                 int attackPoints;
                 URI weaponImageURI;
-                
-                theOne.mAllWeaponsList = FXCollections.observableArrayList();     
+
+                theOne.mAllWeaponsList = FXCollections.observableArrayList();
                 while (weaponRS.next()) {
                 	weaponID = weaponRS.getInt(WEAPON_FIELD_NAMES[0]);
                     weaponType = WeaponType.valueOf(weaponRS.getString(WEAPON_FIELD_NAMES[1]));
@@ -139,18 +149,18 @@ public final class Controller {
                     weaponDescription = weaponRS.getString(WEAPON_FIELD_NAMES[3]);
                     weaponWorth = weaponRS.getInt(WEAPON_FIELD_NAMES[4]);
                     weaponRarity = weaponRS.getInt(WEAPON_FIELD_NAMES[5]);
-                    attackPoints = weaponRS.getInt(WEAPON_FIELD_NAMES[6]);                
-                    weaponImageURI = URI.create(weaponRS.getString(WEAPON_FIELD_NAMES[7]));    
+                    attackPoints = weaponRS.getInt(WEAPON_FIELD_NAMES[6]);
+                    weaponImageURI = URI.create(weaponRS.getString(WEAPON_FIELD_NAMES[7]));
                     theOne.mAllWeaponsList.add(new Weapon(weaponID, weaponType, weaponName, weaponDescription,
                     		weaponWorth, weaponRarity, attackPoints, weaponImageURI));
-                }    
+                }
                 weaponRS.close();
                 //theOne.mAllWeaponsList.forEach(System.out::println);
 
             	System.out.println("Loading Armor Database...");
                 theOne.mArmorDB = new DBModel(DB_NAME, ARMOR_TABLE_NAME, ARMOR_FIELD_NAMES,
                 		ARMOR_FIELD_TYPES);
-                theOne.mArmorDB.deleteAllRecords();   
+                theOne.mArmorDB.deleteAllRecords();
                 //theOne.initializeArmorDBFromFile();
 
                 int armorID;
@@ -161,9 +171,9 @@ public final class Controller {
                 int armorRarity;
                 int armorRating;
                 URI armorImageURI;
-                
+
                 theOne.mAllArmorList = FXCollections.observableArrayList();
-                final ResultSet armorRS = theOne.mArmorDB.getAllRecords();  
+                final ResultSet armorRS = theOne.mArmorDB.getAllRecords();
                 while (armorRS.next()) {
                 	armorID = armorRS.getInt(ARMOR_FIELD_NAMES[0]);
                 	armorType = ArmorType.valueOf(armorRS.getString(ARMOR_FIELD_NAMES[1]));
@@ -175,13 +185,13 @@ public final class Controller {
                 	armorImageURI = URI.create(armorRS.getString(ARMOR_FIELD_NAMES[7]));
                     theOne.mAllArmorList.add(new Armor(armorID, armorType, armorName, armorDescription,
                     		armorWorth, armorRarity, armorRating, armorImageURI));
-                } 
+                }
                 armorRS.close();
                 //theOne.mAllArmorList.forEach(System.out::println);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-			
+
             theOne.mAllUsersList = FXCollections.observableArrayList();
 			theOne.mPlayer = new Player(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, "Vichet",
 					new Image(new File("player-move.png").toURI().toString()));
@@ -189,39 +199,39 @@ public final class Controller {
 			theOne.mAllProjectiles = new ArrayList<>();
 			for (int i = 0; i < ENEMY_COUNT; i++) {
 				Enemy e = new Enemy((Math.random() * (WINDOW_WIDTH - 32)), 100, "Trolls",
-						new Image(new File("troll-move.png").toURI().toString())); 
+						new Image(new File("troll-move.png").toURI().toString()));
 				theOne.mEnemysList.add(e);
 			}
 		}
 		return theOne;
 	}
-	
+
 	public final boolean isValidUsername(final String username) {
 		return username.matches("[a-zA-Z0-9 @._']{4,20}$*");
 	}
-	
+
     public final boolean isValidPassword(final String password) {
         return password.matches("^(?=.*[a-zA-Z])(?=.*?[0-9])[a-zA-Z0-9 @._']{8,20}$*");
     }
-    
+
     public final String signIn(final String u, final String p) {
     	final String username = u.trim();
     	final String password = p.trim();
-    	
-    	if (isValidUsername(username) && isValidPassword(password)) { 	
+
+    	if (isValidUsername(username) && isValidPassword(password)) {
         	final Iterator<User> userIT = mAllUsersList.iterator();
         	User user;
-        	
+
             while (userIT.hasNext()) {
             	user = (User) userIT.next();
-            	
+
                 if (user.getUserName().equalsIgnoreCase(username)) {
                 	ResultSet rs = null;
                     try {
                         rs = theOne.mUserDB.getRecord(String.valueOf(user.getId()));
                         final String storedPassword = rs.getString("password");
                         rs.close();
-                        
+
                         if (password.equals(storedPassword)) {
                             theOne.mCurrentUser = user;
                             return SUCCESS;
@@ -232,16 +242,16 @@ public final class Controller {
                     }
                 }
             }
-    	}    
+    	}
         return COMBINATION_INCORRECT;
     }
-    
+
     public final String signUp(final String u, final String p, final String cp)
     {
     	final String username = u.trim();
     	final String password = p.trim();
     	final String confirmPassword = cp.trim();
-    	
+
     	if (!isValidUsername(username))
     		return USERNAME_DOES_NOT_MEET_CRITERIA;
     	if (!isValidPassword(password))
@@ -250,7 +260,7 @@ public final class Controller {
     		return PASSWORDS_DO_NOT_MATCH;
     	if (password.equalsIgnoreCase(username))
         	return PASSWORD_SAME_AS_USER;
-    	
+
 		final Iterator<User> userIT = mAllUsersList.iterator();
 		User user;
 
@@ -272,11 +282,11 @@ public final class Controller {
 		}
 		return SUCCESS;
     }
-	
+
 	public Player getPlayer() {
 		return theOne.mPlayer;
 	}
-	
+
 	public void movePlayer(double dx, double dy, double cx, double cy) {
 		if (dx == 0 && dy == 0)
 			return;
@@ -285,17 +295,17 @@ public final class Controller {
 
 		moveTo(x, y, cx, cy);
 	}
-	
+
 	public void moveTo(double x, double y, double cx, double cy) {
 		if (x - cx >= 0 && x + cx <= WINDOW_WIDTH && y - cy >= 0 && y + cy <= WINDOW_HEIGHT) {
 			theOne.mPlayer.setPos(x, y);
 		}
 	}
-	
+
 	public void playerGotHit() {
 		theOne.mPlayer.wasHit(10);
 	}
-	
+
 	public ArrayList<Enemy> getAllEnemyList() {
 		return new ArrayList<Enemy>(theOne.mEnemysList);
 	}
@@ -315,11 +325,11 @@ public final class Controller {
 		Projectile shot = new Projectile(theOne.mPlayer.getX(), theOne.mPlayer.getY(), mouseX, mouseY, theOne.mPlayer.getAttackPower(), "Player Shot", new Image(new File(projectileFileStr).toURI().toString()));
 		theOne.mAllProjectiles.add(shot);
 	}
-	
+
 	public void playerUsedSkill(Skill skill) {
 		theOne.mPlayer.setSkill(skill);
 	}
-	
+
     private final int initializeWeaponsDBFromFile() throws SQLException {
         if (theOne.mWeaponsDB.getRecordCount() > 0) return 0;
 
@@ -331,15 +341,15 @@ public final class Controller {
 
             String[] data;
             String[] values;
-            
+
             while (cin.hasNextLine()) {
                 data = cin.nextLine().split(",");
-                
+
                 if (data.length != WEAPON_FIELD_NAMES.length) {
                 	System.err.println("Skippng bad CSV row: " + data[0]);
                 	continue;
                 }
-                
+
                 values = new String[WEAPON_FIELD_NAMES.length-1];
                 //values[0] = data[0];
                 values[0] = data[1];
@@ -351,7 +361,7 @@ public final class Controller {
                 values[6] = (data[7]);
                 theOne.mWeaponsDB.createRecord(Arrays.copyOfRange(WEAPON_FIELD_NAMES, 1,
                 		WEAPON_FIELD_NAMES.length), values);
-                
+
                 //System.out.println("Controller Line 352: " + Arrays.toString(values));
                 recordsCreated++;
             }
@@ -366,7 +376,7 @@ public final class Controller {
         }
         return recordsCreated;
     }
-    
+
     private final int initializeArmorDBFromFile() throws SQLException {
         if (theOne.mArmorDB.getRecordCount() > 0) return 0;
 
@@ -378,15 +388,15 @@ public final class Controller {
 
             String[] data;
             String[] values;
-            
+
             while (cin.hasNextLine()) {
                 data = cin.nextLine().split(",");
-                
+
                 if (data.length != ARMOR_FIELD_NAMES.length) {
                 	System.err.println("Skippng bad CSV row: " + data[0]);
                 	continue;
                 }
-                
+
                 values = new String[ARMOR_FIELD_NAMES.length-1];
                 //values[0] = data[0];
                 values[0] = data[1];
@@ -398,7 +408,7 @@ public final class Controller {
                 values[6] = (data[7]);
                 theOne.mArmorDB.createRecord(Arrays.copyOfRange(ARMOR_FIELD_NAMES, 1,
                 		ARMOR_FIELD_NAMES.length), values);
-                
+
                 //System.out.println("Controller Line 391: " + Arrays.toString(values));
                 recordsCreated++;
             }
@@ -411,7 +421,7 @@ public final class Controller {
         }
         return recordsCreated;
     }
-    
+
     private final int initializeItemsDBFromFile() throws SQLException {
         if (theOne.mItemsDB.getRecordCount() > 0) return 0;
 
@@ -423,15 +433,15 @@ public final class Controller {
 
             String[] data;
             String[] values;
-            
+
             while (cin.hasNextLine()) {
                 data = cin.nextLine().split(",");
-                
+
                 if (data.length != ITEM_FIELD_NAMES.length) {
                 	System.err.println("Skippng bad CSV row: " + data[0]);
                 	continue;
                 }
-                
+
                 values = new String[ITEM_FIELD_NAMES.length-1];
                 //values[0] = data[0];
                 values[0] = data[1];
@@ -440,7 +450,7 @@ public final class Controller {
                 values[3] = data[4];
                 theOne.mItemsDB.createRecord(
                         Arrays.copyOfRange(ITEM_FIELD_NAMES, 1, ITEM_FIELD_NAMES.length), values);
-                
+
                 //System.out.println("Controller Line : " + Arrays.toString(values));
                 recordsCreated++;
             }
